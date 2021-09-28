@@ -1,0 +1,22 @@
+er->server:1 Http GET https://fullstack-exampleapp.herokuapp.com/notes
+server-->browser:HTML-code
+browser->server:request .CSS
+server-->browser:sent .CSS
+browser->server:request .JS
+server-->browser:sent .JS
+
+note over browser:execute js code
+browser->server:get .json
+server-->browser:JSON...
+note over browser:2 render parsed JSON
+
+browser->server:POST https://studies.cs.helsinki.fi/exampleapp/new_note
+note over server:
+append new dato to JSON like 
+[{...}...,{content:"your input",date:"current date"]
+end note
+server-->browser:response:302 Redir location:/notes
+note over browser:
+repeat 1-7 steps but note that 
+the JSON file is newly generated
+end note
