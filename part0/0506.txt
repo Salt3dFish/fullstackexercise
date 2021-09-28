@@ -1,0 +1,28 @@
+
+te spa
+browser -> server:GET https://studies.cs.helsinki.fi/exampleapp/spa
+server --> browser:send HTML
+browser -> server: GET .css
+server --> browser:send css
+browser -> server: GET .js
+server --> browser:send .js
+note over browser: 
+execute .JS that 
+request .JSON from server
+end note
+browser -> server:request .JSON
+server --> browser:send .JSON
+note over browser:
+execute event handler that
+reder JSON to display
+end note
+note right of browser: below is submit form
+
+note over browser:
+execute event handler for submit
+render JSON to display
+end note
+browser -> server:POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over server:append new data to JSON
+server --> browser:send message:created
