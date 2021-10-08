@@ -1,37 +1,92 @@
-mport React from 'react'
+import React from 'react'
 
-const Head = (props) => {
+const Header = ({text}) => {
   return (
-    <>
-      <h1>{props.name}</h1>
-    </>
+    <div>
+      <h1>{text}</h1>
+    </div>
   )
 }
-const Part = (props) => {
+const Part = ({part}) => {
   return (
-    <>
-      <p>{props.part} {props.exer}</p>
-    </>
+    <div>
+      <p>{part.name} {part.exercises}</p>
+    </div>
   )
 }
-const Content = (props) => {
+const Content = ({parts}) => {
   return (
-    <>
-      <Part part={props.parts[0].name} exer={props.parts[0].exercises} />
-      <Part part={props.parts[1].name} exer={props.parts[1].exercises} />
-      <Part part={props.parts[2].name} exer={props.parts[2].exercises} />
-    </>
+    <div>
+      {parts.map((part)=><Part part={part} key={part.id} />)}
+    </div>
   )
 }
-const Total = (props) => {
+const Total = ({parts}) => {
   return (
-    <>
-      <p>Number of exercises {props.parts[0].exercises + props.parts[1].exercises + props.parts[2].exercises}</p>
-    </>
+    <div>
+      <strong >total of {parts.reduce((sum,part)=>sum+part.exercises,0)} exercises </strong>
+    </div>
   )
 }
+
+const Course=({course})=> {
+
+  return (
+    <div>
+    <Header text={course.name} key={'head'+course.id}/>
+    <Content parts={course.parts} key={'content'+course.id} />
+    <Total parts={course.parts} key={'total'+course.id} />
+    </div>
+  )
+
+}
+
 const App = () => {
-  const course = {
+  const courses = [
+    {
+      name: 'Half Stack application development',
+      id: 1,
+      parts: [
+        {
+          name: 'Fundamentals of React',
+          exercises: 10,
+          id: 1
+        },
+        {
+          name: 'Using props to pass data',
+          exercises: 7,
+          id: 2
+        },
+        {
+          name: 'State of a component',
+          exercises: 14,
+          id: 3
+        },
+        {
+          name: 'Redux',
+          exercises: 11,
+          id: 4
+        }
+      ]
+    },
+    {
+      name: 'Node.js',
+      id: 2,
+      parts: [
+        {
+          name: 'Routing',
+          exercises: 3,
+          id: 1
+        },
+        {
+          name: 'Middlewares',
+          exercises: 7,
+          id: 2
+        }
+      ]
+    }
+  ]
+  const course1 = {
     name: 'Half Stack application development',
     parts: [
       {
@@ -51,11 +106,10 @@ const App = () => {
 
   return (
     <div>
-      <Head name={course.name} />
-      <Content parts={course.parts} />
-      <Total parts={course.parts} />
+    <Header text='Web development curriculum' />
+    {courses.map((course)=><Course course={course} key={course.id} />)}
     </div>
   )
 }
 
-export default App
+export default Course
