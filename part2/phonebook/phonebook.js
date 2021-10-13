@@ -1,19 +1,10 @@
 import React,{useState,useEffect} from 'react'
-import axios from 'axios'
-
-const Header=({text})=>
-  <h2>
-    {text}
-  </h2>
+import Person,{Header,Input} from './components/PhoneBook.js'
+import pbService from './service/pbservice.js'
 
 const Filter=({text,filterValue,valueChangeHandler})=>
   <div>
     {text} <input value={filterValue} onChange={valueChangeHandler} />
-  </div>
-
-const Input=({text,inputValue,changeHandler})=>
-  <div>
-    {text}: <input value={inputValue} onChange={changeHandler} />
   </div>
 
 const PersonForm=({submitHandler,inputProp,filterValue})=>
@@ -27,82 +18,117 @@ const PersonForm=({submitHandler,inputProp,filterValue})=>
   </form>
   </div>
 
-const Person=({name,number})=>
-  <p>{name}:{number}</p>
 
-const Persons=({persons,filterValue})=>
-  persons.filter(
-    (person)=>{
-      var filterByName=new RegExp(filterValue,'i')
-      return person.name.match(filterByName)!=null
-    }
-  ).map(
-    (person)=>
-    <Person name={person.name} number={person.number} key={person.id} />
-  )
-  /*
-  (persons.map(
+const Persons=({persons,toggleDeleteof})=>
+  persons
+    .map(
       (person)=>
-      <Person name={person.name} number={person.number} key={person.id} />
+      <Person name={person.name} number={person.number} key={person.id}
+      toggleDelete={()=>toggleDeleteof(person.id,person.name)}/>
     )
-  ).filter(
-    (person)=>{
-      var filterbyname=new RegExp('filterValue','i');
-      return person.name.match(filterbyname)!=null
-    }
-  )*/
+
 
 
 const App=()=>{
 
-  const [newName,setNewName]=useState('')
-  const [newNumber,setNewNumber]=useState('')
+const [newName,setNewName]=useState('')
+const [newNumber,setNewNumber]=useState('')
 
-  const [persons,setPersons]=useState([])
+const [persons,setPersons]=useState([])
 
-  const [nameFilter,setNewFilter]=useState('')
+const [filterValue,setNewFilter]=useState('')
 
-  const handleNameChange=(event)=>{
-    setNewName(event.target.value)
+const handleNameChange=(event)=>{
+  setNewName(event.target.value)
+}
+const handleNumberChange=(event)=>{
+  setNewNumber(event.target.value)
+}
+const handleFilterChange=(event)=>{
+  setNewFilter(event.target.value)
+}
+
+const addNewPerson=(event)=>{
+  event.preventDefault()
+  const newPerson={
+    name: newName,
+    number: newNumber,
   }
-  const handleNumberChange=(event)=>{
-    setNewNumber(event.target.value)
-  }
-  const handleFilterChange=(event)=>{
-    setNewFilter(event.target.value)
-  }
-
-  const addNewPerson=(event)=>{
-    event.preventDefault()
-    const newPerson={
-      name: newName,
-      number: newNumber,
-      id: persons.length+1
+  if (persons.find((person)=>person.name===newPerson.name)){
+    if (window.confirm(`${newPerson.name} is already added to phonebook,replace the old number with a new one?`))
+    {
+      const oldPersonId=persons.find(person=>person.name===newPerson.name).id
+      pbService.updatePerson(oldPersonId,newPerson)
+        .then(
+          updatedPerson=>{
+            setPersons(
+              persons.map(
+                person=>person.id!==oldPersonId?person:updatedPerson
+              )
+            )
+            setNewName('')
+            setNewNumber('')
+          }
+        )
     }
-    if (persons.find((person)=>person.name===newPerson.name))
-      window.alert(`${newPerson.name} is already added to phonebook`)
-    else{
-    setNewName('')
-    setNewNumber('')
-    setPersons(persons.concat(newPerson))
-    }
   }
+  else{
+    pbService
+      .createPerson(newPerson)
+      .then(
+        returnedPerson=>{
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        }
+      )
+      .catch(
+        ()=>{
+          alert('fail to add')
+        }
+      )
+  }
+}
 
 useEffect(
   ()=>{
-    axios.get('http://localhost:3001/persons')
-    .then(
-      response=>{
-        setPersons(response.data)
-      }
-    )
+    pbService
+      .getAllPersons()
+      .then(
+        initialPersons=>{
+          setPersons(initialPersons)
+        }
+      )
   },
 [])
+
+
+const personsToShow=persons.filter(
+  person=>{
+    var nameFilter=new RegExp(filterValue,'i')
+    return person.name.match(nameFilter)!==null
+  }
+)
+
+const toggleDeleteof=(id,name)=>{
+  if (window.confirm(`delete ${name} ?`))
+    pbService.deletePerson(id)
+    .then(
+      ()=>{
+        setPersons(
+          persons.filter(
+            person=>person.id!==id
+          )
+        )
+      }
+    )
+}
+
 
   return (
     <div>
     <Header text='Phonebook' />
-    <Filter text= 'filter shown with' filterValue={nameFilter} valueChangeHandler={handleFilterChange} />
+    <Filter text= 'filter shown with' filterValue={filterValue} valueChangeHandler={handleFilterChange} />
     <Header text='Add a new' />
     <PersonForm
     submitHandler={addNewPerson}
@@ -115,7 +141,7 @@ useEffect(
     }
     />
     <Header text='Number' />
-    <Persons persons={persons} filterValue={nameFilter} />
+    <Persons persons={personsToShow} toggleDeleteof={toggleDeleteof} />
     </div>
   )
 }
