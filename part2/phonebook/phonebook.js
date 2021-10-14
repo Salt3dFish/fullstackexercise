@@ -27,17 +27,46 @@ const Persons=({persons,toggleDeleteof})=>
       toggleDelete={()=>toggleDeleteof(person.id,person.name)}/>
     )
 
-
+const Notification=({message,notificationType})=>
+{
+  if (message===null)
+    return null
+  var notificationStyle={}
+  if (notificationType==='success')
+    notificationStyle={
+      color: 'green',
+      background: 'lightgrey',
+      fontSize: 20,
+      borderStyle: 'solid',
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 10,
+    }
+  else
+  notificationStyle={
+    color: 'red',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+  return (
+    <div style={notificationStyle}>
+      {message}
+    </div>
+  )
+}
 
 const App=()=>{
 
 const [newName,setNewName]=useState('')
 const [newNumber,setNewNumber]=useState('')
-
 const [persons,setPersons]=useState([])
-
 const [filterValue,setNewFilter]=useState('')
-
+const [successMessage,setSuccessMessage]=useState(null)
+const [failMessage,setFailMessage]=useState(null)
 const handleNameChange=(event)=>{
   setNewName(event.target.value)
 }
@@ -57,17 +86,34 @@ const addNewPerson=(event)=>{
   if (persons.find((person)=>person.name===newPerson.name)){
     if (window.confirm(`${newPerson.name} is already added to phonebook,replace the old number with a new one?`))
     {
-      const oldPersonId=persons.find(person=>person.name===newPerson.name).id
-      pbService.updatePerson(oldPersonId,newPerson)
+      const oldPerson=persons.find(person=>person.name===newPerson.name)
+      pbService.updatePerson(oldPerson.id,newPerson)
         .then(
           updatedPerson=>{
             setPersons(
               persons.map(
-                person=>person.id!==oldPersonId?person:updatedPerson
+                person=>person.id!==oldPerson.id?person:updatedPerson
               )
+            )
+            setSuccessMessage(`Updated ${updatedPerson.name}'s number`)
+            setTimeout(
+              ()=>{setSuccessMessage(null)},3000
             )
             setNewName('')
             setNewNumber('')
+          }
+        )
+        .catch(
+          ()=>{
+            setFailMessage(`Information of ${oldPerson.name} has already been removed from server`)
+            setTimeout(
+              ()=>{setFailMessage(null)},3000
+            )
+            setPersons(
+              persons.filter(
+                person=>person.id!==oldPerson.id
+              )
+            )
           }
         )
     }
@@ -78,6 +124,10 @@ const addNewPerson=(event)=>{
       .then(
         returnedPerson=>{
           setPersons(persons.concat(returnedPerson))
+          setSuccessMessage(`Added ${returnedPerson.name}`)
+          setTimeout(
+            ()=>{setSuccessMessage(null)},3000
+          )
           setNewName('')
           setNewNumber('')
         }
@@ -115,6 +165,10 @@ const toggleDeleteof=(id,name)=>{
     pbService.deletePerson(id)
     .then(
       ()=>{
+        setSuccessMessage(`delete ${name} successfully`)
+        setTimeout(
+          ()=>{setSuccessMessage(null)},3000
+        )
         setPersons(
           persons.filter(
             person=>person.id!==id
@@ -127,6 +181,8 @@ const toggleDeleteof=(id,name)=>{
 
   return (
     <div>
+    <Notification message={successMessage} notificationType='success' />
+    <Notification message={failMessage} notificationType='fail' />
     <Header text='Phonebook' />
     <Filter text= 'filter shown with' filterValue={filterValue} valueChangeHandler={handleFilterChange} />
     <Header text='Add a new' />
