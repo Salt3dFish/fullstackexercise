@@ -60,38 +60,35 @@ app.delete('/api/persons/:id', (request, response) => {
         () => { response.status(204).end() }
     )
 })
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response,next) => {
     const addedPerson = request.body
     if (!addedPerson.name || !addedPerson.number)
         return response.status(400).json({
             error: 'name or number missing'
         })
-    Person.findOne({ name: addedPerson.name }).then(
-        returnedPerson => {
-            if (!returnedPerson) {
-                const newPerson = new Person({
-                    name: addedPerson.name,
-                    number: addedPerson.number.toString()
-                })
-                newPerson.save()
-                    .then(
-                        returnedPerson => {
-                            response.json(returnedPerson)
-                        }
-                    )
-            }
-            else {
-                response.status(400).json({ error: 'name must be unique!' })
-            }
-        }
-    )
+    const newPerson=new Person({
+        name:addedPerson.name,
+        number:addedPerson.number
+    })
+    newPerson.save()
+    .then(savedPerson=>savedPerson.toJSON())
+    .then(savedAndFormattedPerson=>{
+        response.json(savedAndFormattedPerson)
+    })
+    .catch(error=>{
+        console.log(error.name)    
+        next(error)
+    })
 })
 app.put('/api/persons/:id', (request, response, next) => {
     const newPerson = request.body
-    Person.findByIdAndUpdate(request.params.id, { number: newPerson.number }, { new: true })
+    Person.findByIdAndUpdate(request.params.id, { number: newPerson.number }, { new: true,runValidators:true })
         .then(
             returnedPerson => {
-                response.json(returnedPerson)
+                if (returnedPerson)
+                    response.json(returnedPerson)
+                else
+                    response.status(400).json({error:'have been deleted'})
             }
         )
         .catch(error => next(error))
@@ -103,8 +100,14 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-    if (error.name === 'CastError' && error.kind === 'ObjectId')
+    console.log(error.name)
+    console.log(error)
+    if (error.name === 'CastError')
         response.status(400).send({ error: 'malformatted id' })
+    else if (error.name==='MongoServerError')
+        response.status(400).json({error:'name must be unique!'})
+    else if (error.name==='ValidationError')
+        response.status(400).json({error:error.message})
     next(error)
 }
 app.use(errorHandler)
