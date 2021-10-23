@@ -103,6 +103,6 @@ describe('most likes',() => {
     expect(listHelper.mostLikes(oneBlog)).toEqual({ author:'Michael Chan',likes:7 })
   })
   test('1 more blogs is Martin',() => {
-    expect(listHelper.mostLikes(bigBlogs).author).toEqual('Robert C. Martin')
+    expect(listHelper.mostLikes(bigBlogs)).toEqual({ author:'Robert C. Martin',likes:24 })
   })
 })
