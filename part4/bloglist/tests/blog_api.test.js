@@ -3,7 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
-
+const User = require('../models/user')
 
 const bigBlogs = [
   {
@@ -44,101 +44,153 @@ const bigBlogs = [
   }
 ]
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  const blogs = bigBlogs.map(
-    blog => new Blog(blog)
-  )
-  const promiseArray = blogs.map(
-    blog => blog.save()
-  )
-  await Promise.all(promiseArray)
-})
-
-
-test('get 6 blogs', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(6)
-})
-
-test('contain id', async () => {
-  const response = await api.get('/api/blogs')
-  const blogId = response.body[0].id
-  expect(blogId).toBeDefined()
-})
-
-test('add 1', async () => {
-  const newBlog = {
-    title: 'i am new',
-    author: 'sb',
-    url: 'http://www.baidu.com',
-    likes: 0
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(bigBlogs.length + 1)
-})
-
-
-test('default likes is 0', async () => {
-  const newBlog = { title: 'no likes', author: 'sb', url: 'http://www.baidu.com' }
-  const response = await api.post('/api/blogs').send(newBlog)
-  console.log(response.body)
-  expect(response.body.likes).toBe(0)
-
-})
-
-test('need title and url',async() => {
-  const newBlog={ author:'sb',likes:1 }
-  await api.post('/api/blogs').send(newBlog)
-    .expect(400)
-})
-
-describe('delete and put',() => {
-
-  test('delete a blog',async() => {
-    const newBlog={ title: 'no likes', author: 'sb', url: 'http://www.baidu.com' }
-    let response=await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(201)
-      .expect('Content-Type',/application\/json/)
-    const id=response.body.id
-
-    await api
-      .delete(`/api/blogs/${id}`)
-      .expect(204)
-    response=await api.get('/api/blogs')
-    expect(response.body).toHaveLength(bigBlogs.length)
+describe('edition 1', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    const blogs = bigBlogs.map(
+      blog => new Blog(blog)
+    )
+    const promiseArray = blogs.map(
+      blog => blog.save()
+    )
+    await Promise.all(promiseArray)
   })
 
-  test('change a blog',async() => {
-    const newBlog={ title: 'no likes', author: 'sb', url: 'http://www.baidu.com',likes:10 }
-    let response=await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(201)
-      .expect('Content-Type',/application\/json/)
-    expect(response.body.id).toBeDefined()
 
-    const id=response.id
-    const changedBlog={
-      title:'i changed',
-      author:response.body.author,
-      url:response.body.url,
-      likes:20
+  test('get 6 blogs', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(6)
+  })
+
+  test('contain id', async () => {
+    const response = await api.get('/api/blogs')
+    const blogId = response.body[0].id
+    expect(blogId).toBeDefined()
+  })
+
+  test('add 1', async () => {
+    const newBlog = {
+      title: 'i am new',
+      author: 'sb',
+      url: 'http://www.baidu.com',
+      likes: 0
     }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
 
-    response=await api.put(`/api/blogs/${id}`).send(changedBlog)
-    expect(response.body.likes).toEqual(changedBlog.likes)
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(bigBlogs.length + 1)
+  })
+
+
+  test('default likes is 0', async () => {
+    const newBlog = { title: 'no likes', author: 'sb', url: 'http://www.baidu.com' }
+    const response = await api.post('/api/blogs').send(newBlog)
+    console.log(response.body)
+    expect(response.body.likes).toBe(0)
 
   })
 
+  test('need title and url', async () => {
+    const newBlog = { author: 'sb', likes: 1 }
+    await api.post('/api/blogs').send(newBlog)
+      .expect(400)
+  })
+
+  describe('delete and put', () => {
+
+    test('delete a blog', async () => {
+      const newBlog = { title: 'no likes', author: 'sb', url: 'http://www.baidu.com' }
+      let response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      const id = response.body.id
+
+      await api
+        .delete(`/api/blogs/${id}`)
+        .expect(204)
+      response = await api.get('/api/blogs')
+      expect(response.body).toHaveLength(bigBlogs.length)
+    })
+
+    test('change a blog', async () => {
+      const newBlog = { title: 'no likes', author: 'sb', url: 'http://www.baidu.com', likes: 10 }
+      let response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      expect(response.body.id).toBeDefined()
+
+      const id = response.id
+      const changedBlog = {
+        title: 'i changed',
+        author: response.body.author,
+        url: response.body.url,
+        likes: 20
+      }
+
+      response = await api.put(`/api/blogs/${id}`).send(changedBlog)
+      expect(response.body.likes).toEqual(changedBlog.likes)
+
+    })
+
+  })
+})
+
+describe('after token', () => {
+  beforeEach(async () => {
+    await User.deleteMany()
+    const user = new User({
+      username: 'root',
+      name: 'root',
+      password: '123456'
+    })
+    await user.save()
+  })
+  test('cant add without token!',async() => {
+    const blog={
+      title:'test blog',
+      url:'http://www.baidu.com',
+      author:'SB',
+      likes:5
+    }
+    const response=await api.post('/api/blogs').send(blog)
+      .expect(401)
+    expect(response.body.error).toContain('jwt must be provided')
+  })
+  test('can add with a valid token',async() => {
+    const user={
+      username:'hello friend',
+      name:'tester',
+      password:'123456'
+    }
+    const blog={
+      title:'test blog',
+      url:'http://www.baidu.com',
+      author:'SB',
+      likes:5
+    }
+    await api.post('/api/users').send(user).expect(200)
+    const response=await api.post('/api/login').send(user)
+    console.log('-------------')
+    console.log(response.body.token)
+    console.log('---------------')
+    const token=response.body.token
+    const rBlog=await api
+      .post('/api/blogs')
+      .set('Authorization',`bearer ${token}`)
+      .send(blog)
+    console.log('--------------')
+    console.log(rBlog.body)
+    console.log('---------------')
+    expect(rBlog.body.title).toEqual(blog.title)
+  })
 })
 
 afterAll(() => {

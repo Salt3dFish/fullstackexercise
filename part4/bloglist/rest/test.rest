@@ -1,0 +1,44 @@
+GET http://localhost:3001/api/blogs
+###
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhoaGgiLCJpZCI6IjYxNzU0N2Y0MDRjMTRiMzY2YjdiZGNmNiIsImlhdCI6MTYzNTA4NTcwNCwiZXhwIjoxNjM1MDg5MzA0fQ.9tfk5lDJH6uGT1HnYb93P8IqDRDYIRb3PoAcJJ_BPHA
+
+{
+  "title": "hello",
+  "author": "SB",
+  "url": "baidu.com",
+  "likes": 13
+}
+###
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username":"hhhh",
+  "name":"zzzz",
+  "password":"22222"
+}
+###
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username":"xxxx",
+  "name":"zzzz",
+  "password":"123456"
+}
+###
+DELETE http://localhost:3001/api/blogs/61756da5f18f44931612f917
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhoaGgiLCJpZCI6IjYxNzU0N2Y0MDRjMTRiMzY2YjdiZGNmNiIsImlhdCI6MTYzNTA4NTcwNCwiZXhwIjoxNjM1MDg5MzA0fQ.9tfk5lDJH6uGT1HnYb93P8IqDRDYIRb3PoAcJJ_BPHA
+###
+DELETE http://localhost:3001/api/blogs/61756da5f18f44931612f917
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhoaGgiLCJpZCI6IjYxNzU0N2Y0MDRjMTRiMzY2YjdiZGNmNiIsImlhdCI6MTYzNTA4NTcwNCwiZXhwIjoxNjM1MDg5MzA0fQ.9tfk5lDJH6uGT1HnYb93P8IqDRDYIRb3PoAcJJ_BPHA
+###
+PUT http://localhost:3001/api/blogs/61756da5f18f44931612f917
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhoaGgiLCJpZCI6IjYxNzU0N2Y0MDRjMTRiMzY2YjdiZGNmNiIsImlhdCI6MTYzNTA4NTcwNCwiZXhwIjoxNjM1MDg5MzA0fQ.9tfk5lDJH6uGT1HnYb93P8IqDRDYIRb3PoAcJJ_BPHA
+Content-Type: application/json
+
+{
+  "title":"i have been changed :)"
+}
