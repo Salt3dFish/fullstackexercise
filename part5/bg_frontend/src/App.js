@@ -1,37 +1,52 @@
-import React, { useState, useEffect } from 'react'
-import Blog from './components/Blog'
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
+import React, { useState, useEffect, useRef } from 'react'
+import Blogs from './components/Blog'
+//some services
 import blogService from './services/blogs'
 import loginService from './services/login'
-
+//services end
+// some forms
+import LoginForm from './components/loginform'
+import BlogForm from './components/blogform'
+import Togglable from './components/togglable'
+//import end
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  //listen view clicked
+  const [viewStatus, setViewStatus] = useState(false)
   //message
-  const [message,setMessage]=useState(null)
+  const [message, setMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  // ref
+  const blogFormRef = useRef()
   //
+  /*  move to loginForm
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  */
   const [user, setUser] = useState(null)
-  //new blog
+  /* create new Blog removed to blogform ...
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
-  //new blog
+  */
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs)
     )
   }, [])
 
+
   useEffect(() => {
     const user = JSON.parse(window.localStorage.getItem('loggedUser'))
-    if (user !== null){
+    if (user !== null) {
       setUser(user)
       blogService.setToken(user.token)
     }
   }, [])
 
-  //log in
+  /* log in
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -47,12 +62,13 @@ const App = () => {
       )
     }
   }
+  */
   // log out clear local token
   const handleLogout = () => {
     window.localStorage.removeItem('loggedUser')
     setUser(null)
   }
-  // login form
+  /* func to generate log form
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <div>
@@ -70,6 +86,7 @@ const App = () => {
       <button type='submit'>log in</button>
     </form>
   )
+  */
   // create new blog
   const createNewBlog = async () => {
     if (!author || !title || !url)
@@ -91,8 +108,8 @@ const App = () => {
         setUrl('')
         setMessage(`a new blog ${savedBlog.title} !by ${savedBlog.author} added`)
         setTimeout(
-          ()=>setMessage(null)
-        ,3000)
+          () => setMessage(null)
+          , 3000)
       } catch (exception) {
         setErrorMessage(exception.error)
         setTimeout(
@@ -102,14 +119,89 @@ const App = () => {
     }
   }
 
+  const handleLoginService = async (userToPost) => {
+    try {
+      const user = await loginService.login(userToPost)
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
+      blogService.setToken(user.token)
+      setUser(user)
+    } catch (exception) {
+      setErrorMessage('Wrong Credentials')
+      setTimeout(
+        () => setErrorMessage(null)
+        , 3000)
+    }
+  }
 
+  const handleCreateService = async (newBlog) => {
+    blogFormRef.current.toggleVisibility() //hide create form
+    try {
+      const returnedBlog = await blogService.create(newBlog)
+      /*
+      console.log('------------')
+      console.log(`this is blog returned :${returnedBlog.title}`)
+      console.log('----------')
+      */
+      setBlogs(blogs.concat(returnedBlog))
+    } catch (exception) {
+      setErrorMessage(exception.error)
+      setTimeout(
+        () => setErrorMessage(null)
+        , 3000)
+    }
+  }
 
+  const clickDelete = async (id, title, author) => {
+    if (window.confirm(`Remove blog ${title}! by${author}`)) {
+      try {
+        await blogService.deleteById(id)
+        setBlogs(blogs.filter(
+          blog => blog.id !== id
+        ))
+      } catch (exception) {
+        setErrorMessage('delete error')
+        setTimeout(
+          () => setErrorMessage(null)
+          , 3000)
+      }}}
+
+  const clickLikes = async (id) => {
+    try {
+      const blog = blogs.find(blog => blog.id === id)
+      const changedBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id }
+      console.log('------------')
+      console.log(`likes: ${blog.likes} -> ${changedBlog.likes}\n
+      id:${blog.id}`)
+      console.log('---------------')
+      const updatedBlog = await blogService.update(id, changedBlog)
+      console.log('-----------')
+      console.log(`updatedBlog:\n
+      title:${updatedBlog.title}
+      likes:${updatedBlog.likes}
+      id:${updatedBlog.id}`)
+      console.log('---------')
+      setBlogs(
+        blogs.map(
+          blog => blog.id !== id ? blog : updatedBlog)
+      )
+    } catch (exception) {
+      setErrorMessage('cant updated')
+      setTimeout(
+        () => setErrorMessage(null)
+        , 3000)
+    }
+  }
+  const blogsToShow = blogs.sort(
+    (current, next) => next.likes - current.likes
+  )
   if (user === null) {
     return (
       <div>
         <h2>{errorMessage}</h2>
         <h2>Log in to application</h2>
-        {loginForm()}
+        <Togglable buttonLabel='log in'>
+          <LoginForm handleLoginService={handleLoginService} />
+        </Togglable>
       </div>
     )
   }
@@ -129,25 +221,19 @@ const App = () => {
       </div>
       <br></br>
       <div>
-        <div>
-          title: <input value={title} onChange={({ target }) => setTitle(target.value)} />
-        </div>
-        <div>
-          author: <input value={author} onChange={({ target }) => setAuthor(target.value)} />
-        </div>
-        <div>
-          url: <input value={url} onChange={({ target }) => setUrl(target.value)} />
-        </div>
-        <div>
-          <button onClick={createNewBlog}>create</button>
-        </div>
+        <Togglable
+          buttonLabel='create new blog'
+          ref={blogFormRef}>
+          <BlogForm handleCreateService={handleCreateService} />
+        </Togglable >
       </div>
-      <br>
-      </br>
       <div>
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
-        )}
+        <Blogs
+          blogs={blogsToShow}
+          likesClickedHandler={clickLikes}
+          deleteClickedHandler={clickDelete}
+          currentUsername={user.username}
+        />
       </div>
     </div>
   )
