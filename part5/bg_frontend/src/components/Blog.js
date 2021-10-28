@@ -14,7 +14,7 @@ const Blog = ({ blog, clickHandler, likesClickedHandler, deleteClickedHandler,cu
   if (blog.viewStatus === undefined || blog.viewStatus === false) {
     return (
       < div style={blogStyle} >
-        <div>
+        <div className='blogContent'>
           {blog.title} {blog.author}
           <button onClick={() => clickHandler(blog)}>view</button>
         </div>
@@ -24,19 +24,19 @@ const Blog = ({ blog, clickHandler, likesClickedHandler, deleteClickedHandler,cu
   else {
     return (
       <div style={blogStyle}>
-        <div>
+        <div className='blogContent'>
           <div>
             {blog.title} {blog.author}
             <button onClick={() => clickHandler(blog)}>hide</button>
           </div>
-          <div>
+          <div className='likes'>
             likes: {blog.likes}
-            <button onClick={() => likesClickedHandler(blog.id)}>like</button>
+            <button className='likesButton' onClick={() => likesClickedHandler(blog.id)}>like</button>
           </div>
-          <div>
+          <div className='url'>
             {blog.url}
           </div>
-          <div>
+          <div className='username'>
             {blog.user.username}
           </div>
           {
@@ -50,34 +50,5 @@ const Blog = ({ blog, clickHandler, likesClickedHandler, deleteClickedHandler,cu
 }
 
 
-const Blogs = ({ blogs, likesClickedHandler, deleteClickedHandler,currentUsername }) => {
-  const [viewClicked, setViewClicked] = useState(false)
-  const clickViewButton = (blog) => {
-    /*
-    console.log('---------')
-    console.log(`before:${blog.viewStatus}`)
-    */
-    blog.viewStatus = !blog.viewStatus
-    setViewClicked(!viewClicked)
-    /*
-    console.log(`after: ${blog.viewStatus}`)
-    console.log('-----------')
-    */
-  }
-  return (
-    <div>
-      {blogs.map(
-        blog =>
-          <Blog
-            blog={blog}
-            clickHandler={clickViewButton}
-            likesClickedHandler={likesClickedHandler}
-            deleteClickedHandler={deleteClickedHandler}
-            key={blog.id}
-            currentUsername={currentUsername} />
-      )}
-    </div>
-  )
-}
 
-export default Blogs
+export default Blog

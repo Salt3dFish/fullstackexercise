@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect, useRef } from 'react'
-import Blogs from './components/Blog'
+import Blogs from './components/Blogs'
 //some services
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -174,6 +174,8 @@ const App = () => {
       id:${blog.id}`)
       console.log('---------------')
       const updatedBlog = await blogService.update(id, changedBlog)
+      // 返回的Blog不带有viewStatus属性
+      updatedBlog.viewStatus=true
       console.log('-----------')
       console.log(`updatedBlog:\n
       title:${updatedBlog.title}
@@ -216,7 +218,7 @@ const App = () => {
       </div>
       <h2>blogs</h2>
       <div>
-        {user.username}    logged in
+        {user.username} logged in
         <button onClick={handleLogout}>log out</button>
       </div>
       <br></br>
