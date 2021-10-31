@@ -1,3 +1,6 @@
+import anecdoteService from '../services/anecdotes'
+
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -19,41 +22,59 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-const voteFor = (id) => {
-  return ({
-    type: 'VOTE',
-    data: { id }
-  })
+const voteFor = (id,changedAnecdote) => {
+  return async dispatch=>{
+    const updatedAnecdote=await anecdoteService.update(id,changedAnecdote)
+    dispatch({
+      type:id,
+      data:updatedAnecdote
+    })
+  }
 }
-const createAnecdote=content => {
+const createAnecdote = content => {
   console.log('Create Action:accept anecdote')
-  return ({
-    type:'CREATE',
-    data:asObject(content)
-  })
+  return async dispatch=>{
+    const savedAnecdote=await anecdoteService.create(content)
+    dispatch({
+      type:'CREATE',
+      data:savedAnecdote,
+    })
+  }
+}
+
+const initializeAnecdotes = () => {
+  console.log('initializing...')
+  return async dispatch => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch({
+      type: 'INIT_ANECDOTES',
+      data: anecdotes,
+    })
+  }
 }
 
 
-const anecdotesReducer = (state = initialState, action) => {
+const anecdotesReducer = (state = [], action) => {
   console.log('state now: ', state)
   console.log('action:', action)
   switch (action.type) {
     case 'VOTE':
-      const id = action.data.id
-      console.log(`vote for ${id}`)
-      const anecdoteToVote = state.find(anecdote => anecdote.id === id)
-      const changedAnecdote = { ...anecdoteToVote, votes: anecdoteToVote.votes + 1 }
+      console.log(`vote for ${action.data.id}`)
+      const votedAnecdote=action.data
       return state.map(
-        anecdote => anecdote.id !== id ? anecdote : changedAnecdote
+        anecdote => anecdote.id !== votedAnecdote.id ? anecdote : votedAnecdote
       )
     case 'CREATE':
       console.log('receive create action and create new state')
-      const newAnecdote=action.data
-      return [...state,newAnecdote]
+      const newAnecdote = action.data
+      return [...state, newAnecdote]
+    case 'INIT_ANECDOTES':
+      console.log('reducer:init...')
+      return action.data
     default:
       return state
   }
 }
 
 export default anecdotesReducer
-export { voteFor, createAnecdote }
+export { voteFor, createAnecdote, initializeAnecdotes }

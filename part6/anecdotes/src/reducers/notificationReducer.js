@@ -1,32 +1,30 @@
 
-const createNotification=(content)=>{
+const setNotification = (notification,seconds) => {
+  return async dispatch =>{
+    dispatch({
+      type:'SET_NOTIFICATION',
+      data:notification,
+    })
+    setTimeout(
+      ()=>dispatch({
+        type:'CLEAR_NOTIFICATION'
+      })
+    ,seconds*1000)
+  }
+}
+
+const clearNotification = () => {
   return ({
-    type:'CREATE_NOTIFICATION',
-    data:{content}
+    type: 'CLEAR_NOTIFICATION'
   })
 }
 
-const voteNotification=(content)=>{
-  return ({
-    type:'VOTE_NOTIFICATION',
-    data:{content}
-  })
-}
-
-const clearNotification=()=>{
-  return ({
-    type:'CLEAR_NOTIFICATION'
-  })
-}
 
 
-
-const notificationReducer=(state='',action)=>{
+const notificationReducer = (state = '', action) => {
   switch (action.type) {
-    case 'VOTE_NOTIFICATION':
-      return `you vote:${action.data.content}`
-    case 'CREATE_NOTIFICATION':
-      return `you create Anecdote:${action.data.content}`
+    case 'SET_NOTIFICATION':
+      return action.data
     case 'CLEAR_NOTIFICATION':
       return ''
     default:
@@ -36,4 +34,4 @@ const notificationReducer=(state='',action)=>{
 
 
 export default notificationReducer
-export {createNotification,voteNotification,clearNotification}
+export { setNotification, clearNotification }
