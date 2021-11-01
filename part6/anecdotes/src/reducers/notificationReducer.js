@@ -1,23 +1,25 @@
 
-const setNotification = (notification,seconds) => {
-  return async dispatch =>{
+var id  // clear action 's ID undefined | number
+
+
+const setNotification = (notification, seconds) => {
+  return async dispatch => {
+    // console.log('oldID: ', id)
+    if (id !== undefined) {
+      // console.log('clear CLR_NOTIFI,ID:', id)
+      clearTimeout(id)
+    }
+    id = setTimeout(() => dispatch({
+      type: 'CLEAR_NOTIFICATION',
+    }), 1000 * seconds)
+    console.log('newID: ', id)
     dispatch({
-      type:'SET_NOTIFICATION',
-      data:notification,
+      type: 'SET_NOTIFICATION',
+      data: notification,
     })
-    setTimeout(
-      ()=>dispatch({
-        type:'CLEAR_NOTIFICATION'
-      })
-    ,seconds*1000)
   }
 }
 
-const clearNotification = () => {
-  return ({
-    type: 'CLEAR_NOTIFICATION'
-  })
-}
 
 
 
@@ -34,4 +36,4 @@ const notificationReducer = (state = '', action) => {
 
 
 export default notificationReducer
-export { setNotification, clearNotification }
+export { setNotification }

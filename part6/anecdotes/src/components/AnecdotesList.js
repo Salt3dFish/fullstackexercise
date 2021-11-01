@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react"
-import { useSelector, useDispatch } from 'react-redux'
+//import { useSelector, useDispatch } from 'react-redux'
+import {connect} from 'react-redux'
 import { voteFor } from "../reducers/anecdoteReducer"
 import { setNotification } from "../reducers/notificationReducer"
 
@@ -19,20 +20,20 @@ const Anecdote = ({ anecdote, handleVote }) => {
 }
 
 const AnecdotesList = (props) => {
-  const dispatch = useDispatch() 
+/*   const dispatch = useDispatch() 
   const anecdotes = useSelector(state => {
     const filter=state.filter.toLowerCase()
     return state.anecdotes.filter(
       anecdote=>anecdote.content.toLowerCase().includes(filter)
     ).sort((current,next)=>next.votes-current.votes)
-  })
+  }) */
   const handleVote=(id)=>{
-    const votedAnecdote=anecdotes.find(
+    const votedAnecdote=props.anecdotes.find(
       anecdote=>anecdote.id===id
     )
     votedAnecdote.votes=votedAnecdote.votes+1
-    dispatch(voteFor(id,votedAnecdote))
-    dispatch(setNotification(`you voted: ${votedAnecdote.content}`,3))
+    props.voteFor(id,votedAnecdote)
+    props.setNotification(`you voted: ${votedAnecdote.content}`,3)
   }
   /* const filteredAnecdotes=useSelector(state=>{
     const filter=new RegExp(state.filter,'i')
@@ -43,7 +44,7 @@ const AnecdotesList = (props) => {
   return (
     <div>
       <ul>
-        {anecdotes.map(
+        {props.anecdotes.map(
           anecdote => <Anecdote anecdote={anecdote} handleVote={()=>handleVote(anecdote.id)} key={anecdote.id} />
         )}
       </ul>
@@ -51,4 +52,25 @@ const AnecdotesList = (props) => {
   )
 }
 
-export default AnecdotesList
+const mapStateToProps=(state)=>{
+  const filter=state.filter.toLowerCase()
+  return {
+    anecdotes:state.anecdotes
+      .filter(anecdote=>anecdote.content.toLowerCase().includes(filter))
+      .sort((current,next)=>next.votes-current.votes)
+  }
+}
+
+const mapDispatchToProps=(dispatch)=>{
+  return {
+    voteFor: (params1,params2)=>{
+      dispatch(voteFor(params1,params2))
+    },
+    setNotification:(params1,params2)=>{
+      dispatch(setNotification(params1,params2))
+    }
+  }
+}
+
+
+export default connect(mapStateToProps,mapDispatchToProps)(AnecdotesList)
