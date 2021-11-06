@@ -1,0 +1,24 @@
+### Users
+GET http://localhost:3003/api/users
+
+### User
+GET http://localhost:3003/api/users/618480ea23b2727ce56dd597
+
+### Delete User
+DELETE http://localhost:3003/api/users/61837a94918412ac3105be1a
+
+### ADD USER
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username":"test2",
+  "password":"test2",
+  "name":"test2"
+}
+
+### Blogs
+GET http:localhost:3003/api/blogs
+
+###
+DELETE http://localhost:3003/api/blogs/
