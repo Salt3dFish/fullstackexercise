@@ -42,7 +42,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-      <BornForm />
+      <BornForm setError={props.setError} />
     </div>
   )
 }

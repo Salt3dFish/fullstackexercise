@@ -5,7 +5,7 @@ import { ALL_AUTHORS, ALL_AUTHORS_NAMES, UPDATE_AUTHOR_BORN } from '../queries'
 import { useField } from '../hooks'
 
 
-const BornForm = () => {
+const BornForm = ({ setError }) => {
   const born = useField('')
   const [selectedName, setSelectedName] = useState('')
 
@@ -25,7 +25,7 @@ const BornForm = () => {
         name: selectedName,
         born: Number(born.value)
       }
-    })
+    }).catch(error => setError(error.message))
     born.reset()
   }
 
@@ -54,7 +54,7 @@ const BornForm = () => {
         </label>
         <Select
           defaultValue={selectedName}
-          onChange={({value})=>setSelectedName(value  )}
+          onChange={({ value }) => setSelectedName(value)}
           options={options}
         />
         <div>
