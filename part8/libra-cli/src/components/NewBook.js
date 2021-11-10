@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { useField } from '../hooks'
-import { ALL_BOOKS,ADD_BOOKS, ALL_AUTHORS } from '../queries'
+import { ALL_BOOKS, ADD_BOOKS, ALL_AUTHORS } from '../queries'
 
 const NewBook = (props) => {
   const title = useField('')
@@ -10,9 +10,7 @@ const NewBook = (props) => {
   const genre = useField('')
   const [genres, setGenres] = useState([])
 
-  const [createBook]=useMutation(ADD_BOOKS,{
-    refetchQueries:[{query:ALL_BOOKS},{query:ALL_AUTHORS}]
-  })
+  const [createBook] = useMutation(ADD_BOOKS)
 
   if (!props.show) {
     return null
@@ -23,12 +21,43 @@ const NewBook = (props) => {
 
     console.log('add book...')
 
-    createBook({variables:{
-      title:title.value,
-      author:author.value,
-      published:Number(published.value),
-      genres
-    }}).catch(error=>{
+    createBook({
+      variables: {
+        title: title.value,
+        author: author.value,
+        published: Number(published.value),
+        genres
+      },
+      update: (store, response) => {
+        const booksInStore = store.readQuery({ query: ALL_BOOKS })
+        const genres = response.data.addBook.genres
+        if (genres) {
+          genres.forEach(
+            genre => {
+              const genredBooks = store.readQuery({ query: ALL_BOOKS, variables: { genre: genre } })
+              console.log(genredBooks)
+              if (genredBooks) {
+                store.writeQuery({
+                  query: ALL_BOOKS,
+                  variables: { genre: genre },
+                  data: {
+                    ...genredBooks,
+                    allBooks: [...genredBooks.allBooks, response.data.addBook]
+                  }
+                })
+              }
+            }
+          )
+        }
+        store.writeQuery({
+          query: ALL_BOOKS,
+          data: {
+            ...booksInStore,
+            allBooks: [...booksInStore.allBooks, response.data.addBook]
+          }
+        })
+      }
+    }).catch(error => {
       props.setError(error.message)
     })
 
