@@ -4,7 +4,7 @@ import { ALL_AUTHORS } from '../queries'
 import BornForm from './BornForm'
 
 const Authors = (props) => {
-  const { loading, error, data } = useQuery(ALL_AUTHORS)
+  const { loading, data } = useQuery(ALL_AUTHORS)
   if (!props.show) {
     return null
   }

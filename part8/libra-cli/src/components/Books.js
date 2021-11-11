@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLazyQuery, useQuery } from '@apollo/client'
+import { useLazyQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
 
 
@@ -32,7 +32,7 @@ export const BooksList = ({ books }) => {
 
 const Books = (props) => {
   const [selectedGenre, setGenre] = useState('')
-  const [getBooksByGenre, { loading, error, data }] = useLazyQuery(ALL_BOOKS)
+  const [getBooksByGenre, { loading, data }] = useLazyQuery(ALL_BOOKS)
   const [getAllBooks, res] = useLazyQuery(ALL_BOOKS)
   const [allBooks, setBooks] = useState([])
 
@@ -47,19 +47,8 @@ const Books = (props) => {
     getBooksByGenre()
   }, [])
 
-  /*   useEffect(() => {
-      if (selectedGenre) {
-        getBooksByGenre({
-          variables: { genre: selectedGenre }
-        })
-      }
-      else {
-        getBooksByGenre()
-      }
-    }, [selectedGenre]) */
 
   const sendQuery = (genre) => {
-    // console.log(genre)
     setGenre(genre)
     if (genre) {
       getBooksByGenre({

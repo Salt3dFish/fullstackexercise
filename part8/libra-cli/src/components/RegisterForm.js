@@ -1,14 +1,14 @@
 import { useMutation } from '@apollo/client'
 import React from 'react'
 import { useField } from '../hooks'
-import { REGISTER, WHO_AM_I } from '../queries'
+import { REGISTER } from '../queries'
 
 const RegisterForm = ({ show, setError, setPage }) => {
   const username = useField('')
   const password = useField('')
   const favoriteGenre = useField('')
 
-  const [register, { error, loading, data }] = useMutation(REGISTER, {
+  const [register, {  loading, data }] = useMutation(REGISTER, {
     onError: (error) => setError(error.message),
   })
 

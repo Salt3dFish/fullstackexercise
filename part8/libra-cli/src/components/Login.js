@@ -7,7 +7,7 @@ const LoginForm = ({ setPage, show, setError, setToken ,setUser}) => {
   const username = useField('')
   const password = useField('')
 
-  const [login, { loading, error, data }] = useMutation(LOG_IN, {
+  const [login, { loading, data }] = useMutation(LOG_IN, {
     onError: (error) => { setError(error.message) }
   })
 

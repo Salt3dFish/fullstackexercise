@@ -9,7 +9,7 @@ const BornForm = ({ setError }) => {
   const born = useField('')
   const [selectedName, setSelectedName] = useState('')
 
-  const { loading, error, data } = useQuery(ALL_AUTHORS_NAMES)
+  const { loading, data } = useQuery(ALL_AUTHORS_NAMES)
 
   const [updateAuthorBorn] = useMutation(UPDATE_AUTHOR_BORN, {
     refetchQueries: [{ query: ALL_AUTHORS }]
