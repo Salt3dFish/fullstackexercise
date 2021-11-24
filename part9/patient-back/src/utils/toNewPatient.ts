@@ -1,4 +1,4 @@
-import { NewPatient, gender } from "../types";
+import { NewPatient, Gender } from "../types";
 
 const toNewPatient = (obj: any): NewPatient => {
   return {
@@ -6,7 +6,8 @@ const toNewPatient = (obj: any): NewPatient => {
     dateOfBirth: parseBirthday(obj.dateOfBirth),
     ssn: parseSsn(obj.ssn),
     gender: parseGender(obj.gender),
-    occupation: parseOccupation(obj.occupation)
+    occupation: parseOccupation(obj.occupation),
+    entries: []
   }
 }
 
@@ -36,8 +37,8 @@ const parseSsn = (ssn: unknown): string => {
   }
   return ssn
 }
-const isGender = (param: any): param is gender => {
-  return Object.values(gender).includes(param)
+const isGender = (param: any): param is Gender => {
+  return Object.values(Gender).includes(param)
 }
 const parseGender = (gender: unknown) => {
   if (!gender || !isGender(gender)) {

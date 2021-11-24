@@ -1,15 +1,53 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { State } from "./state";
-import { Patient } from "../types";
+import { Diagnosis, Patient } from "../types";
 
 export type Action =
   | {
-      type: "SET_PATIENT_LIST";
-      payload: Patient[];
-    }
+    type: "SET_PATIENT_LIST";
+    payload: Patient[];
+  }
   | {
-      type: "ADD_PATIENT";
-      payload: Patient;
-    };
+    type: "ADD_PATIENT";
+    payload: Patient;
+  }
+  | {
+    type:'UPDATE_PATIENT_INFO';
+    payload:Patient
+  }
+  | {
+    type:'SET_DIAGNOSES';
+    payload:Diagnosis[];
+  };
+
+export const  setPatientList=(patients:Patient[]):Action=>{
+  return ({
+    type:'SET_PATIENT_LIST',
+    payload:patients
+  });
+};
+
+export const addNewPatient=(patient:Patient):Action=>{
+  return ({
+    type:'ADD_PATIENT',
+    payload:patient
+  });
+};
+
+export const updatePatientInfo=(patient:Patient):Action=>{
+  return ({
+    type:'UPDATE_PATIENT_INFO',
+    payload:patient
+  });
+};
+
+export const setDiagnoses=(diagnoses:Diagnosis[]):Action=>{
+  return ({
+    type:'SET_DIAGNOSES',
+    payload:diagnoses
+  });
+};
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -30,6 +68,24 @@ export const reducer = (state: State, action: Action): State => {
         patients: {
           ...state.patients,
           [action.payload.id]: action.payload
+        }
+      };
+    case 'UPDATE_PATIENT_INFO':
+      return {
+        ...state,
+        patientsInfo:{
+          ...state.patientsInfo,
+          [action.payload.id]:action.payload
+        }
+      };
+    case 'SET_DIAGNOSES':
+      return {
+        ...state,
+        diagnoses:{
+          ...action.payload.reduce(
+            (memo,diagnosis)=>({...memo,[diagnosis.code]:diagnosis}),
+            {}
+          )
         }
       };
     default:

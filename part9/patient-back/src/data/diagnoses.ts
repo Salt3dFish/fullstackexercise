@@ -1,6 +1,6 @@
-import { Diagnose } from '../types'
+import { Diagnosis } from '../types'
 
-const diagnoses: Array<Diagnose> =
+const diagnoses: Array<Diagnosis> =
   [
     {
       "code": "M24.2",
