@@ -19,9 +19,13 @@ export type Action =
   | {
     type:'SET_DIAGNOSES';
     payload:Diagnosis[];
+  }
+  | {
+    type:'ADD_PATIENT_ENTRY';
+    payload:{patient:Patient,id:string};
   };
 
-export const  setPatientList=(patients:Patient[]):Action=>{
+export const setPatientList=(patients:Patient[]):Action=>{
   return ({
     type:'SET_PATIENT_LIST',
     payload:patients
@@ -46,6 +50,13 @@ export const setDiagnoses=(diagnoses:Diagnosis[]):Action=>{
   return ({
     type:'SET_DIAGNOSES',
     payload:diagnoses
+  });
+};
+
+export const addPatientEntry=(patient:Patient,id:string):Action=>{
+  return ({
+    type:'ADD_PATIENT_ENTRY',
+    payload:{patient,id}
   });
 };
 
@@ -86,6 +97,14 @@ export const reducer = (state: State, action: Action): State => {
             (memo,diagnosis)=>({...memo,[diagnosis.code]:diagnosis}),
             {}
           )
+        }
+      };
+    case 'ADD_PATIENT_ENTRY':
+      const {id,patient}=action.payload;
+      return {
+        ...state,
+        patientsInfo:{
+          ...state.patientsInfo,[id]:patient
         }
       };
     default:

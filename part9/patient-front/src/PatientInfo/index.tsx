@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react";
-import { Container, Header, Icon, List } from "semantic-ui-react";
+import React, { useEffect, useState } from "react";
+import { Button, Container, Header, Icon, List } from "semantic-ui-react";
 import { Patient, Entry, Diagnosis, HealthCheckRating } from "../types";
 import { useParams } from "react-router";
 import { setDiagnoses, updatePatientInfo, useStateValue } from "../state";
 import axios from "axios";
+import AddEntryModal from "../AddEntryModal";
 
 
 const baseUrl = 'http://localhost:3001/api';
@@ -145,7 +146,24 @@ const PatientEntries: React.FC<{ entries: Entry[] }> = ({ entries }) => {
 const PatientInfo = () => {
   const { id } = useParams<{ id: string }>();
   const [{ patientsInfo }, dispatch] = useStateValue();
+  const [modalOpen, setModal] = useState(false);
+  const [error, setError] = useState<string | undefined>();
   const patient = patientsInfo[id];
+
+  const onSubmit = (id:string) => {
+    console.log('submitting ...');
+    closeModal();
+    return id;
+  };
+  const closeModal = () => {
+    setModal(false);
+    setError(undefined);
+  };
+  const openModal=()=>{
+    setModal(true);
+  };
+
+
 
   const getDiagnoses = async () => {
     try {
@@ -201,6 +219,12 @@ const PatientInfo = () => {
         <br></br>
         <br></br>
         <PatientEntries entries={patient.entries} />
+        <AddEntryModal
+          modalOpen={modalOpen}
+          onClose={closeModal}
+          onSubmit={()=>onSubmit(id)}
+          error={error} />
+        <Button onClick={openModal}>Add New Entry</Button>
       </Container>
     </div>
   );

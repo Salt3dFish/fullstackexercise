@@ -76,7 +76,7 @@ const isHealthCheckRating = (value: any): value is HealthCheckRating => {
 }
 
 const parseHealthCheckRating = (value: unknown): HealthCheckRating => {
-  if (!value || !isHealthCheckRating(value))
+  if (value===undefined || !isHealthCheckRating(value))
     throw new Error(`Incorrect or missing HealthCheckRating: ${value}`)
   return value;
 }
